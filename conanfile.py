@@ -10,7 +10,7 @@ class VSModulesTestConan(ConanFile):
     license = "MIT"
     settings = "os", "compiler", "build_type", "arch"
 
-    path_config = os.path.join(os.path.dirname(__file__), 'config.json.example')
+    path_config = os.path.join(os.path.dirname(__file__), 'config.json')
     with open(path_config) as json_file:
         data = json.load(json_file)
     skp_ver = data['skp_ver']
@@ -33,8 +33,12 @@ class VSModulesTestConan(ConanFile):
 
             with tools.environment_append(env_vars):
                 vcvars = tools.vcvars_command(self.settings)
-                self.run('%s && cl /EHsc %s' %
-                        (vcvars, self.path_root('src', 'main.cpp')))
+                cmd = '%s && cl /EHsc ' % vcvars
+                cmd += ' '.join([
+                    self.path_root('src', 'main.cpp'),
+                    self.path_root('src', 'util', 'checkerror.cpp'),
+                    ])
+                self.run(cmd)
 
     def location_win_skp(self, v='17'):
         loc = None

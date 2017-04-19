@@ -1,7 +1,7 @@
 #include <Python.h>
 #include <SketchUpAPI/initialize.h>
 
-#include "skpmodule.c"
+#include "skpmodule.cpp"
 
 #include <stdio.h>
 

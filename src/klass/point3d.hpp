@@ -1,5 +1,7 @@
-#include <Python.h>
-#include "structmember.h"
+#ifndef SKP_POINT3D_HPP
+#define SKP_POINT3D_HPP
+
+#include "common.hpp"
 
 typedef struct {
   PyObject_HEAD
@@ -198,3 +200,5 @@ static PyTypeObject SkpPoint3dType = {
   0,                                                      /* tp_alloc */
   SkpPoint3d_new,                                         /* tp_new */
 };
+
+#endif

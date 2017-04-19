@@ -1,97 +1,103 @@
-#include <Python.h>
-#include "structmember.h"
+#ifndef SKP_FACE_HPP
+#define SKP_FACE_HPP
 
-#include <SketchUpAPI/model/model.h>
+#include "common.hpp"
 
-#include "entities.c"
-
-#include <SketchUpAPI/geometry.h>
-#include <SketchUpAPI/model/model.h>
 #include <SketchUpAPI/model/face.h>
-#include <SketchUpAPI/model/edge.h>
-#include <SketchUpAPI/model/vertex.h>
 #include <vector>
+
+#include "loop.hpp"
+#include "edge.hpp"
 
 typedef struct {
   PyObject_HEAD
-  SUModelRef _su_model; 
-  PyObject* entities;
-} SkpModel;
+  SUFaceRef _su_face;
+  PyObject *outer_loop;
+} SkpFace;
 
-static void SkpModel_dealloc(SkpModel* self) {
-  SUModelRelease(&self->_su_model);
-  //Py_XDECREF(self->_su_model);
+static void SkpFace_dealloc(SkpFace* self) {
+  Py_XDECREF(self->outer_loop);
 
   Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyObject * SkpModel_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
-  SkpModel *self;
+static PyObject * SkpFace_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+  SkpFace *self;
 
-  self = (SkpModel*)type->tp_alloc(type, 0);
+  self = (SkpFace*)type->tp_alloc(type, 0);
 
   if (self != NULL) {
-    self->_su_model = SU_INVALID;
+    self->_su_face = SU_INVALID;
   }
 
   return (PyObject *)self;
 }
 
-static int SkpModel_init(SkpModel *self, PyObject *args, PyObject *kwds) {
+static int SkpFace_init(SkpFace *self, PyObject *args, PyObject *kwds) {
   return 0;
 }
 
-typedef struct {
-  double x;
-  double y;
-} Pt;
+static PyMemberDef SkpFace_members[] = {
+  {NULL}  /* Sentinel */
+};
 
-static PyObject* SkpModel_getentities(SkpModel *self, void *closure) {
-  SkpEntities *py_entities = (SkpEntities*)PyObject_CallFunction(
-      (PyObject*) &SkpEntitiesType, NULL);
+static PyObject* SkpFace_getedges(SkpFace *self, void *closure) {
+  GET_ELM_BODY(
+    SUFaceGetNumEdges,
+    SUFaceGetEdges,
+    SUEdgeRef,
+    _su_face,
+    _su_edge,
+    "cannot get edges",
+    SkpEdge,
+    SkpEdgeType
+  )
+}
 
-  SUResult res = SUModelGetEntities(self->_su_model, &py_entities->_su_entities);
+static PyObject* SkpFace_getouter_loop(SkpFace *self, void *closure) {
+  SkpLoop *py_loop = (SkpLoop*)PyObject_CallFunction((PyObject*)&SkpLoopType, NULL);
+  SULoopRef su_loop = SU_INVALID;
 
-  if (res == SU_ERROR_INVALID_INPUT) {
-    PyErr_SetString(PyExc_TypeError, "SU_ERROR_INVALID_INPUT");
-    Py_DECREF(py_entities);
+
+  SUResult res = SUFaceGetOuterLoop(self->_su_face, &su_loop);
+
+  if (checkerror(res, "cannot get loop")) {
+    Py_DECREF(py_loop);
     return NULL;
   }
 
-  self->entities = (PyObject*)py_entities;
+  py_loop->_su_loop = su_loop;
 
-  Py_INCREF(self->entities);
+  Py_INCREF(py_loop);
+  self->outer_loop = (PyObject*)py_loop;
 
-  return self->entities;
+  return (PyObject*)py_loop;
 }
 
-static int SkpModel_setentities(SkpModel *self, PyObject *value, void *closure) {
-  PyErr_SetString(PyExc_TypeError, "Cannot set entities.");
-  return -1;
+static PyObject* SkpFace_getentityID(SkpFace *self, void *closure) {
+  GET_ENTITY_BODY(_su_face, SUFaceToEntity)
 }
 
-static PyMemberDef SkpModel_members[] = {
+static PyGetSetDef SkpFace_getseters[] = {
+  { "outer_loop", (getter)SkpFace_getouter_loop, NULL,
+    "outer_loop", NULL},
+  { "edges", (getter)SkpFace_getedges, NULL,
+    "edges", NULL},
+  { "entityID", (getter)SkpFace_getentityID, NULL,
+    "entityID", NULL},
   {NULL}  /* Sentinel */
 };
 
-static PyGetSetDef SkpModel_getseters[] = {
-  { "entities",
-    (getter)SkpModel_getentities, (setter)SkpModel_setentities,
-    "entities", 
-    NULL},
+static PyMethodDef SkpFace_methods[] = {
   {NULL}  /* Sentinel */
 };
 
-static PyMethodDef SkpModel_methods[] = {
-  {NULL}  /* Sentinel */
-};
-
-static PyTypeObject SkpModelType = {
+static PyTypeObject SkpFaceType = {
   PyVarObject_HEAD_INIT(NULL, 0)
-  "skp.Model",                                            /* tp_name */
-  sizeof(SkpModel),                                       /* tp_basicsize */
+  "skp.Face",                                             /* tp_name */
+  sizeof(SkpFace),                                        /* tp_basicsize */
   0,                                                      /* tp_itemsize */
-  (destructor)SkpModel_dealloc,                           /* tp_dealloc */
+  (destructor)SkpFace_dealloc,                            /* tp_dealloc */
   0,                                                      /* tp_print */
   0,                                                      /* tp_getattr */
   0,                                                      /* tp_setattr */
@@ -107,22 +113,24 @@ static PyTypeObject SkpModelType = {
   0,                                                      /* tp_setattro */
   0,                                                      /* tp_as_buffer */
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,               /*tp_flags */
-  "Model objects",                                        /* tp_doc */
+  "SketchUp Face",                                        /* tp_doc */
   0,                                                      /* tp_traverse */
   0,                                                      /* tp_clear */
   0,                                                      /* tp_richcompare */
   0,                                                      /* tp_weaklistoffset */
   0,                                                      /* tp_iter */
   0,                                                      /* tp_iternext */
-  SkpModel_methods,                                       /* tp_methods */
-  SkpModel_members,                                       /* tp_members */
-  SkpModel_getseters,                                     /* tp_getset */
+  SkpFace_methods,                                        /* tp_methods */
+  SkpFace_members,                                        /* tp_members */
+  SkpFace_getseters,                                      /* tp_getset */
   0,                                                      /* tp_base */
   0,                                                      /* tp_dict */
   0,                                                      /* tp_descr_get */
   0,                                                      /* tp_descr_set */
   0,                                                      /* tp_dictoffset */
-  (initproc)SkpModel_init,                                /* tp_init */
+  (initproc)SkpFace_init,                                 /* tp_init */
   0,                                                      /* tp_alloc */
-  SkpModel_new,                                           /* tp_new */
+  SkpFace_new,                                            /* tp_new */
 };
+
+#endif
