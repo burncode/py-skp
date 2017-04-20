@@ -1,65 +1,63 @@
-#ifndef SKP_LOOP_HPP
-#define SKP_LOOP_HPP
+#ifndef SKP_ENTITY_HPP
+#define SKP_ENTITY_HPP
 
 #include "common.hpp"
 
-#include <SketchUpAPI/model/loop.h>
+#include <SketchUpAPI/model/entity.h>
 
 typedef struct {
-  SkpDrawingElement skp_drawing_element;
-  SULoopRef _su_loop;
-} SkpLoop;
+  PyObject_HEAD
+  SUEntityRef _su_entity;
+  SUEntityRef (*get_su_entity)(void*);
+} SkpEntity;
 
-static void SkpLoop_dealloc(SkpLoop* self) {
-  // TODO: dealloc members
-
+static void SkpEntity_dealloc(SkpEntity* self) {
   Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static SUEntityRef SkpLoop__get_su_entity(void *self) {
-  SkpEntity *ent_self = (SkpEntity*)self;
+static PyObject * SkpEntity_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+  PyObject *py_obj = type->tp_alloc(type, 0);
 
-  if (!SUIsValid(ent_self->_su_entity))
-    ent_self->_su_entity = SULoopToEntity(((SkpLoop*)self)->_su_loop);
-
-  return ent_self->_su_entity;
-}
-
-static PyObject * SkpLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
-  PyObject *py_obj = (PyObject*)SkpDrawingElementType.tp_new(type, args, kwds);
-
-  SkpLoop *self = (SkpLoop*)py_obj;
+  SkpEntity *self = (SkpEntity*)py_obj;
   if (self != NULL) {
-    ((SkpEntity*)self)->get_su_entity = &SkpLoop__get_su_entity;
-
-    self->_su_loop = SU_INVALID;
+    self->_su_entity = SU_INVALID;
   }
 
   return py_obj;
 }
 
-static int SkpLoop_init(SkpLoop *self, PyObject *args, PyObject *kwds) {
+static int SkpEntity_init(SkpEntity *self, PyObject *args, PyObject *kwds) {
   return 0;
 }
 
-static PyMemberDef SkpLoop_members[] = {
+static PyMemberDef SkpEntity_members[] = {
   {NULL}  /* Sentinel */
 };
 
-static PyGetSetDef SkpLoop_getseters[] = {
+static PyObject* SkpEntity_getentityID(SkpEntity *self, void *closure) {
+  int32_t entity_id = 0;
+  SUResult res = SUEntityGetID(self->get_su_entity(self), &entity_id);
+  if (checkerror(res, "Cannot get entityID")) return NULL;
+
+  return PyLong_FromLong((long)entity_id);
+}
+
+static PyGetSetDef SkpEntity_getseters[] = {
+  { "entityID", (getter)SkpEntity_getentityID, NULL,
+    "entityID", NULL},
   {NULL}  /* Sentinel */
 };
 
-static PyMethodDef SkpLoop_methods[] = {
+static PyMethodDef SkpEntity_methods[] = {
   {NULL}  /* Sentinel */
 };
 
-static PyTypeObject SkpLoopType = {
+static PyTypeObject SkpEntityType = {
   PyVarObject_HEAD_INIT(NULL, 0)
-  "skp.Loop",                                             /* tp_name */
-  sizeof(SkpLoop),                                        /* tp_basicsize */
+  "skp.Entity",                                           /* tp_name */
+  sizeof(SkpEntity),                                      /* tp_basicsize */
   0,                                                      /* tp_itemsize */
-  (destructor)SkpLoop_dealloc,                            /* tp_dealloc */
+  (destructor)SkpEntity_dealloc,                          /* tp_dealloc */
   0,                                                      /* tp_print */
   0,                                                      /* tp_getattr */
   0,                                                      /* tp_setattr */
@@ -75,24 +73,24 @@ static PyTypeObject SkpLoopType = {
   0,                                                      /* tp_setattro */
   0,                                                      /* tp_as_buffer */
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,               /*tp_flags */
-  "SketchUp Loop",                                        /* tp_doc */
+  "SketchUp Entity",                                      /* tp_doc */
   0,                                                      /* tp_traverse */
   0,                                                      /* tp_clear */
   0,                                                      /* tp_richcompare */
   0,                                                      /* tp_weaklistoffset */
   0,                                                      /* tp_iter */
   0,                                                      /* tp_iternext */
-  SkpLoop_methods,                                        /* tp_methods */
-  SkpLoop_members,                                        /* tp_members */
-  SkpLoop_getseters,                                      /* tp_getset */
+  SkpEntity_methods,                                      /* tp_methods */
+  SkpEntity_members,                                      /* tp_members */
+  SkpEntity_getseters,                                    /* tp_getset */
   0,                                                      /* tp_base */
   0,                                                      /* tp_dict */
   0,                                                      /* tp_descr_get */
   0,                                                      /* tp_descr_set */
   0,                                                      /* tp_dictoffset */
-  (initproc)SkpLoop_init,                                 /* tp_init */
+  (initproc)SkpEntity_init,                               /* tp_init */
   0,                                                      /* tp_alloc */
-  SkpLoop_new,                                            /* tp_new */
+  SkpEntity_new,                                          /* tp_new */
 };
 
 #endif

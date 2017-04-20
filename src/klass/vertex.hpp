@@ -8,7 +8,7 @@
 #include "point3d.hpp"
 
 typedef struct {
-  PyObject_HEAD
+  SkpDrawingElement skp_drawing_element;
   SUVertexRef _su_vertex;
 } SkpVertex;
 
@@ -18,16 +18,26 @@ static void SkpVertex_dealloc(SkpVertex* self) {
   Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
+static SUEntityRef SkpVertex__get_su_entity(void *self) {
+  SkpEntity *ent_self = (SkpEntity*)self;
+
+  if (!SUIsValid(ent_self->_su_entity))
+    ent_self->_su_entity = SUVertexToEntity(((SkpVertex*)self)->_su_vertex);
+
+  return ent_self->_su_entity;
+}
+
 static PyObject * SkpVertex_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
-  SkpVertex *self;
+  PyObject *py_obj = (PyObject*)SkpDrawingElementType.tp_new(type, args, kwds);
 
-  self = (SkpVertex*)type->tp_alloc(type, 0);
-
+  SkpVertex *self = (SkpVertex*)py_obj;
   if (self != NULL) {
+    ((SkpEntity*)self)->get_su_entity = &SkpVertex__get_su_entity;
+
     self->_su_vertex = SU_INVALID;
   }
 
-  return (PyObject *)self;
+  return py_obj;
 }
 
 static int SkpVertex_init(SkpVertex *self, PyObject *args, PyObject *kwds) {
@@ -77,10 +87,6 @@ static PyObject* SkpVertex_getedges(SkpVertex *self, void *closure);
 static PyObject* SkpVertex_getfaces(SkpVertex *self, void *closure);
 static PyObject* SkpVertex_getloops(SkpVertex *self, void *closure);
 
-static PyObject* SkpVertex_getentityID(SkpVertex *self, void *closure) {
-  GET_ENTITY_BODY(_su_vertex, SUVertexToEntity)
-}
-
 static PyGetSetDef SkpVertex_getseters[] = {
   { "position", (getter)SkpVertex_getposition, NULL,
     "position", NULL},
@@ -90,8 +96,6 @@ static PyGetSetDef SkpVertex_getseters[] = {
     "faces", NULL},
   { "loops", (getter)SkpVertex_getloops, NULL,
     "loops", NULL},
-  { "entityID", (getter)SkpVertex_getentityID, NULL,
-    "entityID", NULL},
   {NULL}  /* Sentinel */
 };
 

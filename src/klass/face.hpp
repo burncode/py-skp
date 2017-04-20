@@ -6,11 +6,12 @@
 #include <SketchUpAPI/model/face.h>
 #include <vector>
 
+#include "drawing_element.hpp"
 #include "loop.hpp"
 #include "edge.hpp"
 
 typedef struct {
-  PyObject_HEAD
+  SkpDrawingElement skp_drawing_element;
   SUFaceRef _su_face;
   PyObject *outer_loop;
 } SkpFace;
@@ -21,16 +22,26 @@ static void SkpFace_dealloc(SkpFace* self) {
   Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
+static SUEntityRef SkpFace__get_su_entity(void *self) {
+  SkpEntity *ent_self = (SkpEntity*)self;
+
+  if (!SUIsValid(ent_self->_su_entity))
+    ent_self->_su_entity = SUFaceToEntity(((SkpFace*)self)->_su_face);
+
+  return ent_self->_su_entity;
+}
+
 static PyObject * SkpFace_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
-  SkpFace *self;
+  PyObject *py_obj = (PyObject*)SkpDrawingElementType.tp_new(type, args, kwds);
 
-  self = (SkpFace*)type->tp_alloc(type, 0);
-
+  SkpFace *self = (SkpFace*)py_obj;
   if (self != NULL) {
+    ((SkpEntity*)self)->get_su_entity = &SkpFace__get_su_entity;
+
     self->_su_face = SU_INVALID;
   }
 
-  return (PyObject *)self;
+  return py_obj;
 }
 
 static int SkpFace_init(SkpFace *self, PyObject *args, PyObject *kwds) {
@@ -74,17 +85,11 @@ static PyObject* SkpFace_getouter_loop(SkpFace *self, void *closure) {
   return (PyObject*)py_loop;
 }
 
-static PyObject* SkpFace_getentityID(SkpFace *self, void *closure) {
-  GET_ENTITY_BODY(_su_face, SUFaceToEntity)
-}
-
 static PyGetSetDef SkpFace_getseters[] = {
   { "outer_loop", (getter)SkpFace_getouter_loop, NULL,
     "outer_loop", NULL},
   { "edges", (getter)SkpFace_getedges, NULL,
     "edges", NULL},
-  { "entityID", (getter)SkpFace_getentityID, NULL,
-    "entityID", NULL},
   {NULL}  /* Sentinel */
 };
 

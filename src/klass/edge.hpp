@@ -8,7 +8,7 @@
 #include "vertex.hpp"
 
 typedef struct {
-  PyObject_HEAD
+  SkpDrawingElement skp_drawing_element;
   SUEdgeRef _su_edge;
   PyObject* start;
   PyObject* end;
@@ -22,18 +22,28 @@ static void SkpEdge_dealloc(SkpEdge* self) {
   Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
+static SUEntityRef SkpEdge__get_su_entity(void *self) {
+  SkpEntity *ent_self = (SkpEntity*)self;
+
+  if (!SUIsValid(ent_self->_su_entity))
+    ent_self->_su_entity = SUEdgeToEntity(((SkpEdge*)self)->_su_edge);
+
+  return ent_self->_su_entity;
+}
+
 static PyObject * SkpEdge_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
-  SkpEdge *self;
+  PyObject *py_obj = (PyObject*)SkpDrawingElementType.tp_new(type, args, kwds);
 
-  self = (SkpEdge*)type->tp_alloc(type, 0);
-
+  SkpEdge *self = (SkpEdge*)py_obj;
   if (self != NULL) {
+    ((SkpEntity*)self)->get_su_entity = &SkpEdge__get_su_entity;
+
     self->_su_edge = SU_INVALID;
     self->start = NULL;
     self->end = NULL;
   }
 
-  return (PyObject *)self;
+  return py_obj;
 }
 
 static int SkpEdge_init(SkpEdge *self, PyObject *args, PyObject *kwds) {
@@ -75,10 +85,6 @@ static PyObject* tmp(SkpEdge *self, void *closure) {
   return Py_None;
 }
 
-static PyObject* SkpEdge_getentityID(SkpEdge *self, void *closure) {
-  GET_ENTITY_BODY(_su_edge, SUEdgeToEntity)
-}
-
 static PyGetSetDef SkpEdge_getseters[] = {
   { "start", (getter)SkpEdge_getstart, NULL,
     "start", NULL},
@@ -86,8 +92,6 @@ static PyGetSetDef SkpEdge_getseters[] = {
     "end", NULL},
   { "tmp", (getter)tmp, NULL,
     "tmp", NULL},
-  { "entityID", (getter)SkpEdge_getentityID, NULL,
-    "entityID", NULL},
   {NULL}  /* Sentinel */
 };
 
