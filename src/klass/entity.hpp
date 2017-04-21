@@ -42,9 +42,13 @@ static PyObject* SkpEntity_getentityID(SkpEntity *self, void *closure) {
   return PyLong_FromLong((long)entity_id);
 }
 
+static PyObject* SkpEntity_getattribute_dictionaries(SkpEntity *self, void *closure);
+
 static PyGetSetDef SkpEntity_getseters[] = {
   { "entityID", (getter)SkpEntity_getentityID, NULL,
     "entityID", NULL},
+  { "attribute_dictionaries", (getter)SkpEntity_getattribute_dictionaries, NULL,
+    "attribute_dictionaries", NULL},
   {NULL}  /* Sentinel */
 };
 

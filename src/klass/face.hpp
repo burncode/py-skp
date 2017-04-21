@@ -4,7 +4,6 @@
 #include "common.hpp"
 
 #include <SketchUpAPI/model/face.h>
-#include <vector>
 
 #include "drawing_element.hpp"
 #include "loop.hpp"

@@ -6,16 +6,17 @@
 #include <SketchUpAPI/model/face.h>
 #include <SketchUpAPI/model/edge.h>
 #include <SketchUpAPI/model/vertex.h>
-#include <vector>
 
 #include "klass/model.hpp"
 #include "klass/entity.hpp"
+#include "klass/attribute_dictionary.hpp"
 #include "klass/drawing_element.hpp"
 #include "klass/entities.hpp"
 #include "klass/face.hpp"
 #include "klass/loop.hpp"
 #include "klass/edge.hpp"
 #include "klass/vertex.hpp"
+#include "klass/entity_methods.hpp"
 #include "klass/vertex_methods.hpp"
 #include "klass/entities_methods.hpp"
 
@@ -69,6 +70,11 @@ PyMODINIT_FUNC PyInit_skp(void) {
   if (PyType_Ready(&SkpEntityType) < 0) return NULL;
   Py_INCREF(&SkpEntityType);
   PyModule_AddObject(m, "Entity", (PyObject *)&SkpEntityType);
+
+  SkpAttributeDictionaryType.tp_base = &SkpEntityType;
+  if (PyType_Ready(&SkpAttributeDictionaryType) < 0) return NULL;
+  Py_INCREF(&SkpAttributeDictionaryType);
+  PyModule_AddObject(m, "AttributeDictionary", (PyObject *)&SkpAttributeDictionaryType);
 
   SkpDrawingElementType.tp_base = &SkpEntityType;
   if (PyType_Ready(&SkpDrawingElementType) < 0) return NULL;
