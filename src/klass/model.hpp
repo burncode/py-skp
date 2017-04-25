@@ -6,6 +6,7 @@
 #include <SketchUpAPI/model/model.h>
 
 #include "entities.hpp"
+#include "material.hpp"
 
 typedef struct {
   PyObject_HEAD
@@ -34,6 +35,19 @@ static PyObject * SkpModel_new(PyTypeObject *type, PyObject *args, PyObject *kwd
 
 static int SkpModel_init(SkpModel *self, PyObject *args, PyObject *kwds) {
   return 0;
+}
+
+static PyObject* SkpModel_getmaterials(SkpModel *self, void *closure) {
+  GET_ELM_BODY(
+    SUModelGetNumMaterials,
+    SUModelGetMaterials,
+    SUMaterialRef,
+    _su_model,
+    _su_material,
+    "cannot get materials",
+    SkpMaterial,
+    SkpMaterialType
+  )
 }
 
 static PyObject* SkpModel_getentities(SkpModel *self, void *closure) {
@@ -65,6 +79,8 @@ static PyMemberDef SkpModel_members[] = {
 static PyGetSetDef SkpModel_getseters[] = {
   { "entities", (getter)SkpModel_getentities, (setter)SkpModel_setentities,
     "entities", NULL},
+  { "materials", (getter)SkpModel_getmaterials, NULL,
+    "materials", NULL},
   {NULL}  /* Sentinel */
 };
 

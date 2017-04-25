@@ -9,6 +9,7 @@
 
 #include "klass/model.hpp"
 #include "klass/entity.hpp"
+#include "klass/material.hpp"
 #include "klass/attribute_dictionary.hpp"
 #include "klass/drawing_element.hpp"
 #include "klass/entities.hpp"
@@ -70,6 +71,11 @@ PyMODINIT_FUNC PyInit_skp(void) {
   if (PyType_Ready(&SkpEntityType) < 0) return NULL;
   Py_INCREF(&SkpEntityType);
   PyModule_AddObject(m, "Entity", (PyObject *)&SkpEntityType);
+
+  SkpMaterialType.tp_base = &SkpEntityType;
+  if (PyType_Ready(&SkpMaterialType) < 0) return NULL;
+  Py_INCREF(&SkpMaterialType);
+  PyModule_AddObject(m, "Material", (PyObject *)&SkpMaterialType);
 
   SkpAttributeDictionaryType.tp_base = &SkpEntityType;
   if (PyType_Ready(&SkpAttributeDictionaryType) < 0) return NULL;

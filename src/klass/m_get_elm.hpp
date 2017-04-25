@@ -13,6 +13,8 @@
   SUResult res_num = proc_get_elm_num(self->__self_su_ref, &len); \
   if (checkerror(res_num, msg)) return NULL; \
   \
+  if (len == 0) return PyObject_CallFunction((PyObject*)&PyList_Type, NULL); \
+  \
   std::vector<su_elm_type> vec_elements(len); \
   \
   SUResult res = proc_get_elms(self->__self_su_ref, len, &vec_elements[0], &len); \

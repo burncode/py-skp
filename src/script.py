@@ -53,11 +53,15 @@ path = os.path.expandvars(
 
 model = skp.read_model(path)
 entities = model.entities
-face = entities.faces[0]
-print(face.attribute_dictionaries)
-print(face.attribute_dictionaries[0].entityID)
-print(face.attribute_dictionaries[0].name)
-attr_dict = face.attribute_dictionaries[0]
-print(attr_dict.keys)
-for k in attr_dict.keys:
-    print("%s: %s" % (k, attr_dict.get_value(k)))
+#face = entities.faces[0]
+#print(face.attribute_dictionaries)
+#print(face.attribute_dictionaries[0].entityID)
+#print(face.attribute_dictionaries[0].name)
+#attr_dict = face.attribute_dictionaries[0]
+#print(attr_dict.keys)
+#for k in attr_dict.keys:
+#    print("%s: %s" % (k, attr_dict.get_value(k)))
+
+for mat in model.materials:
+    print(mat.name)
+    print(mat.use_alpha)
