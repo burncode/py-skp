@@ -5,6 +5,7 @@
 
 #include <SketchUpAPI/model/material.h>
 
+#include "color.hpp"
 #include "entity.hpp"
 
 typedef struct {
@@ -51,6 +52,10 @@ static PyObject* SkpMaterial_getname(SkpMaterial *self, void *closure) {
   GET_NAME_BODY(SUMaterialGetName, _su_material)
 }
 
+static int SkpMaterial_setname(SkpMaterial *self, PyObject *value, void *closure) {
+  SET_NAME_BODY(SUMaterialSetName, _su_material)
+}
+
 static PyObject* SkpMaterial_getuse_alpha(SkpMaterial *self, void *closure) {
   bool alpha;
 
@@ -88,13 +93,51 @@ static int SkpMaterial_setcolorize_type(SkpMaterial *self, PyObject *value, void
   return 0;
 }
 
+static PyObject* SkpMaterial_getcolor(SkpMaterial *self, void *closure) {
+  SUColor su_color;
+  SUResult res = SUMaterialGetColor(self->_su_material, &su_color);
+  if (checkerror(res, "cannot get color")) return NULL;
+
+  PyObject *py_color= PyObject_CallFunction((PyObject*)&SkpColorType,
+      "bbbb",
+      su_color.red,
+      su_color.green,
+      su_color.blue,
+      su_color.alpha);
+
+  if (py_color == NULL) {
+    PyErr_SetString(PyExc_RuntimeError, "Cannot get color");
+    return NULL;
+  }
+
+  Py_INCREF(py_color);
+
+  return py_color;
+}
+
+static int SkpMaterial_setcolor(SkpMaterial *self, PyObject *value, void *closure) {
+  if (PyObject_TypeCheck(value, (PyTypeObject*)&SkpColorType)) {
+    SUColor *color = (SUColor*)&((SkpColor*)value)->red;
+
+    SUResult res = SUMaterialSetColor(self->_su_material, color);
+    if (checkerror(res, "cannot set color")) return -1;
+
+    return 0;
+  } else {
+    PyErr_SetString(PyExc_TypeError, "argument is not a skp.Color");
+    return -1;
+  }
+}
+
 static PyGetSetDef SkpMaterial_getseters[] = {
-  { "name", (getter)SkpMaterial_getname, NULL,
+  { "name", (getter)SkpMaterial_getname, (setter)SkpMaterial_setname,
     "name", NULL},
   { "colorize_type", (getter)SkpMaterial_getcolorize_type, (setter)SkpMaterial_setcolorize_type,
     "colorize_type", NULL},
   { "use_alpha", (getter)SkpMaterial_getuse_alpha, NULL,
     "use_alpha", NULL},
+  { "color", (getter)SkpMaterial_getcolor, (setter)SkpMaterial_setcolor,
+    "color", NULL},
   {NULL}  /* Sentinel */
 };
 

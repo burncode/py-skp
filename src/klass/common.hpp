@@ -13,8 +13,9 @@
 
 // Macros
 
-#include "m_get_elm.hpp"
-#include "m_get_name.hpp"
+#include "../macro/get_element.hpp"
+#include "../macro/get_name.hpp"
+#include "../macro/set_name.hpp"
 
 // Helpers
 

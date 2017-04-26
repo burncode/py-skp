@@ -37,6 +37,35 @@ static int SkpModel_init(SkpModel *self, PyObject *args, PyObject *kwds) {
   return 0;
 }
 
+static PyMemberDef SkpModel_members[] = {
+  {NULL}  /* Sentinel */
+};
+
+static PyObject* SkpModel_getname(SkpModel *self, void *closure) {
+  GET_NAME_BODY(SUModelGetName, _su_model)
+}
+
+static int SkpModel_setname(SkpModel *self, PyObject *value, void *closure) {
+  SET_NAME_BODY(SUModelSetName, _su_model)
+}
+
+static PyObject* SkpModel_getentities(SkpModel *self, void *closure) {
+  SkpEntities *py_entities = (SkpEntities*)PyObject_CallFunction(
+      (PyObject*) &SkpEntitiesType, NULL);
+
+  SUResult res = SUModelGetEntities(self->_su_model, &py_entities->_su_entities);
+  if (checkerror(res, "Cannot get entities")) {
+    Py_DECREF(py_entities);
+    return NULL;
+  }
+
+  self->entities = (PyObject*)py_entities;
+
+  //Py_INCREF(self->entities);
+
+  return self->entities;
+}
+
 static PyObject* SkpModel_getmaterials(SkpModel *self, void *closure) {
   GET_ELM_BODY(
     SUModelGetNumMaterials,
@@ -50,34 +79,10 @@ static PyObject* SkpModel_getmaterials(SkpModel *self, void *closure) {
   )
 }
 
-static PyObject* SkpModel_getentities(SkpModel *self, void *closure) {
-  SkpEntities *py_entities = (SkpEntities*)PyObject_CallFunction(
-      (PyObject*) &SkpEntitiesType, NULL);
-
-  SUResult res = SUModelGetEntities(self->_su_model, &py_entities->_su_entities);
-  if (checkerror(res, "Cannot get position")) {
-    Py_DECREF(py_entities);
-    return NULL;
-  }
-
-  self->entities = (PyObject*)py_entities;
-
-  Py_INCREF(self->entities);
-
-  return self->entities;
-}
-
-static int SkpModel_setentities(SkpModel *self, PyObject *value, void *closure) {
-  PyErr_SetString(PyExc_TypeError, "Cannot set entities.");
-  return -1;
-}
-
-static PyMemberDef SkpModel_members[] = {
-  {NULL}  /* Sentinel */
-};
-
 static PyGetSetDef SkpModel_getseters[] = {
-  { "entities", (getter)SkpModel_getentities, (setter)SkpModel_setentities,
+  { "name", (getter)SkpModel_getname, (setter)SkpModel_setname,
+    "name", NULL},
+  { "entities", (getter)SkpModel_getentities, NULL,
     "entities", NULL},
   { "materials", (getter)SkpModel_getmaterials, NULL,
     "materials", NULL},
@@ -85,7 +90,8 @@ static PyGetSetDef SkpModel_getseters[] = {
 };
 
 static PyObject * SkpModel_save(SkpModel* self) {
-  SUModelSaveToFile(self->_su_model, "new_model.skp");
+  SUResult res = SUModelSaveToFile(self->_su_model, "new_model.skp");
+  if (checkerror(res, "cannot set save model")) return NULL;
 
   return Py_None;
 }

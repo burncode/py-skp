@@ -7,6 +7,7 @@
 #include <SketchUpAPI/model/edge.h>
 #include <SketchUpAPI/model/vertex.h>
 
+#include "klass/color.hpp"
 #include "klass/model.hpp"
 #include "klass/entity.hpp"
 #include "klass/material.hpp"
@@ -63,6 +64,10 @@ PyMODINIT_FUNC PyInit_skp(void) {
 
   m = PyModule_Create(&skpmodule);
   if (m == NULL) return NULL;
+
+  if (PyType_Ready(&SkpColorType) < 0) return NULL;
+  Py_INCREF(&SkpColorType);
+  PyModule_AddObject(m, "Color", (PyObject *)&SkpColorType);
 
   if (PyType_Ready(&SkpModelType) < 0) return NULL;
   Py_INCREF(&SkpModelType);
