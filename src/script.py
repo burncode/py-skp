@@ -55,18 +55,12 @@ model = skp.read_model(path)
 entities = model.entities
 
 mat = model.materials[0]
-print(mat.name)
-c = mat.color
-c.red = 's'
-c.green = 255
-c.blue = 0
-c.alpha = 122
-mat.color = c
-
-c = mat.color
-print(c.red)
-print(c.green)
-print(c.blue)
-print(c.alpha)
-
-model.save()
+tex = mat.texture
+if tex:
+    print(tex)
+    print(tex.filename)
+    print(tex.image_width)
+    print(tex.image_height)
+    print(tex.s_scale)
+    print(tex.t_scale)
+    tex.write('aaa.png')

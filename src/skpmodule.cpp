@@ -13,6 +13,7 @@
 #include "klass/material.hpp"
 #include "klass/attribute_dictionary.hpp"
 #include "klass/drawing_element.hpp"
+#include "klass/texture.hpp"
 #include "klass/entities.hpp"
 #include "klass/face.hpp"
 #include "klass/loop.hpp"
@@ -91,6 +92,11 @@ PyMODINIT_FUNC PyInit_skp(void) {
   if (PyType_Ready(&SkpDrawingElementType) < 0) return NULL;
   Py_INCREF(&SkpDrawingElementType);
   PyModule_AddObject(m, "DrawingElement", (PyObject *)&SkpDrawingElementType);
+
+  SkpTextureType.tp_base = &SkpEntityType;
+  if (PyType_Ready(&SkpTextureType) < 0) return NULL;
+  Py_INCREF(&SkpTextureType);
+  PyModule_AddObject(m, "Texture", (PyObject *)&SkpTextureType);
 
   if (PyType_Ready(&SkpEntitiesType) < 0) return NULL;
   Py_INCREF(&SkpEntitiesType);

@@ -91,7 +91,7 @@ static PyObject* SkpAttributeDictionary_getkeys(SkpAttributeDictionary *self, vo
 }
 
 static PyObject* SkpAttributeDictionary_getname(SkpAttributeDictionary *self, void *closure) {
-  GET_NAME_BODY(SUAttributeDictionaryGetName, _su_attrdict)
+  SKP_GET_STRING_BODY(SUAttributeDictionaryGetName, _su_attrdict, "cannot get name")
 }
 
 static PyGetSetDef SkpAttributeDictionary_getseters[] = {

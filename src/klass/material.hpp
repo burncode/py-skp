@@ -7,6 +7,7 @@
 
 #include "color.hpp"
 #include "entity.hpp"
+#include "texture.hpp"
 
 typedef struct {
   SkpEntity skp_entilty;
@@ -49,7 +50,7 @@ static PyMemberDef SkpMaterial_members[] = {
 };
 
 static PyObject* SkpMaterial_getname(SkpMaterial *self, void *closure) {
-  GET_NAME_BODY(SUMaterialGetName, _su_material)
+  SKP_GET_STRING_BODY(SUMaterialGetName, _su_material, "cannot get name")
 }
 
 static int SkpMaterial_setname(SkpMaterial *self, PyObject *value, void *closure) {
@@ -129,6 +130,20 @@ static int SkpMaterial_setcolor(SkpMaterial *self, PyObject *value, void *closur
   }
 }
 
+static PyObject* SkpMaterial_gettexture(SkpMaterial *self, void *closure) {
+  SkpTexture *py_texture = (SkpTexture*)PyObject_CallFunction((PyObject*)&SkpTextureType, NULL);
+
+  SUResult res = SUMaterialGetTexture(self->_su_material, &py_texture->_su_texture);
+  if (res == SU_ERROR_NO_DATA) return Py_None;
+  if (checkerror(res, "cannot get texture")) return NULL;
+
+  return (PyObject*)py_texture;
+}
+
+static int SkpMaterial_settexture(SkpMaterial *self, PyObject *value, void *closure) {
+  return -1;
+}
+
 static PyGetSetDef SkpMaterial_getseters[] = {
   { "name", (getter)SkpMaterial_getname, (setter)SkpMaterial_setname,
     "name", NULL},
@@ -138,6 +153,8 @@ static PyGetSetDef SkpMaterial_getseters[] = {
     "use_alpha", NULL},
   { "color", (getter)SkpMaterial_getcolor, (setter)SkpMaterial_setcolor,
     "color", NULL},
+  { "texture", (getter)SkpMaterial_gettexture, (setter)SkpMaterial_settexture,
+    "texture", NULL},
   {NULL}  /* Sentinel */
 };
 

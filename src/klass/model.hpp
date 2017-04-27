@@ -42,7 +42,7 @@ static PyMemberDef SkpModel_members[] = {
 };
 
 static PyObject* SkpModel_getname(SkpModel *self, void *closure) {
-  GET_NAME_BODY(SUModelGetName, _su_model)
+  SKP_GET_STRING_BODY(SUModelGetName, _su_model, "cannot get name")
 }
 
 static int SkpModel_setname(SkpModel *self, PyObject *value, void *closure) {
