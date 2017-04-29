@@ -2,7 +2,7 @@
 #include "edge.hpp"
 
 static PyObject* SkpVertex_getedges(SkpVertex *self, void *closure) {
-  GET_ELM_BODY(
+  SKP_GET_ELEMENTS(
     SUVertexGetNumEdges,
     SUVertexGetEdges,
     SUEdgeRef,
@@ -15,7 +15,7 @@ static PyObject* SkpVertex_getedges(SkpVertex *self, void *closure) {
 }
 
 static PyObject* SkpVertex_getfaces(SkpVertex *self, void *closure) {
-  GET_ELM_BODY(
+  SKP_GET_ELEMENTS(
     SUVertexGetNumFaces,
     SUVertexGetFaces,
     SUFaceRef,
@@ -28,7 +28,7 @@ static PyObject* SkpVertex_getfaces(SkpVertex *self, void *closure) {
 }
 
 static PyObject* SkpVertex_getloops(SkpVertex *self, void *closure) {
-  GET_ELM_BODY(
+  SKP_GET_ELEMENTS(
     SUVertexGetNumLoops,
     SUVertexGetLoops,
     SULoopRef,

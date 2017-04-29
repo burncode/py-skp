@@ -12,7 +12,7 @@
   double s_scale, t_scale; \
   \
   SUResult res = SUTextureGetDimensions( \
-      self->_su_texture, &image_width, &image_height, &s_scale, &s_scale); \
+      self->_su_texture, &image_width, &image_height, &s_scale, &t_scale); \
   if (checkerror(res, "cannot get "#var)) return NULL; \
   \
   return py_proc(var); \

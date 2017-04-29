@@ -15,12 +15,15 @@
 #include "klass/drawing_element.hpp"
 #include "klass/texture.hpp"
 #include "klass/entities.hpp"
+#include "klass/curve.hpp"
 #include "klass/face.hpp"
 #include "klass/loop.hpp"
 #include "klass/edge.hpp"
 #include "klass/vertex.hpp"
 #include "klass/entity_methods.hpp"
+#include "klass/curve_methods.hpp"
 #include "klass/vertex_methods.hpp"
+#include "klass/edge_methods.hpp"
 #include "klass/entities_methods.hpp"
 
 static PyObject* create_model(PyObject *self, PyObject *args) {
@@ -105,6 +108,11 @@ PyMODINIT_FUNC PyInit_skp(void) {
   if (PyType_Ready(&SkpPoint3dType) < 0) return NULL;
   Py_INCREF(&SkpPoint3dType);
   PyModule_AddObject(m, "Point3d", (PyObject *)&SkpPoint3dType);
+
+  SkpCurveType.tp_base = &SkpEntityType;
+  if (PyType_Ready(&SkpCurveType) < 0) return NULL;
+  Py_INCREF(&SkpCurveType);
+  PyModule_AddObject(m, "Curve", (PyObject *)&SkpCurveType);
 
   SkpFaceType.tp_base = &SkpDrawingElementType;
   if (PyType_Ready(&SkpFaceType) < 0) return NULL;

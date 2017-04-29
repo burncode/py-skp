@@ -53,14 +53,9 @@ path = os.path.expandvars(
 
 model = skp.read_model(path)
 entities = model.entities
+edges = entities.edges
+edge = edges[0]
+curve = edge.curve
 
-mat = model.materials[0]
-tex = mat.texture
-if tex:
-    print(tex)
-    print(tex.filename)
-    print(tex.image_width)
-    print(tex.image_height)
-    print(tex.s_scale)
-    print(tex.t_scale)
-    tex.write('aaa.png')
+print(curve)
+print(curve.edges)

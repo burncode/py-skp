@@ -14,6 +14,7 @@
 // Macros
 
 #include "../macro/get_element.hpp"
+#include "../macro/get_elements.hpp"
 #include "../macro/get_string.hpp"
 #include "../macro/set_name.hpp"
 

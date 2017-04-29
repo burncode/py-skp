@@ -67,7 +67,7 @@ static PyObject* SkpModel_getentities(SkpModel *self, void *closure) {
 }
 
 static PyObject* SkpModel_getmaterials(SkpModel *self, void *closure) {
-  GET_ELM_BODY(
+  SKP_GET_ELEMENTS(
     SUModelGetNumMaterials,
     SUModelGetMaterials,
     SUMaterialRef,

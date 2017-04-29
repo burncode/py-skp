@@ -80,18 +80,15 @@ static PyObject* SkpEdge_getend(SkpEdge *self, void *closure) {
   return py_vertex;
 }
 
-static PyObject* tmp(SkpEdge *self, void *closure) {
-  printf("%p", &self->_su_edge);
-  return Py_None;
-}
+static PyObject* SkpEdge_getcurve(SkpEdge *self, void *closure);
 
 static PyGetSetDef SkpEdge_getseters[] = {
   { "start", (getter)SkpEdge_getstart, NULL,
     "start", NULL},
   { "end", (getter)SkpEdge_getend, NULL,
     "end", NULL},
-  { "tmp", (getter)tmp, NULL,
-    "tmp", NULL},
+  { "curve", (getter)SkpEdge_getcurve, NULL,
+    "curve", NULL},
   {NULL}  /* Sentinel */
 };
 

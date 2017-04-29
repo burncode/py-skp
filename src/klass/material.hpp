@@ -131,13 +131,14 @@ static int SkpMaterial_setcolor(SkpMaterial *self, PyObject *value, void *closur
 }
 
 static PyObject* SkpMaterial_gettexture(SkpMaterial *self, void *closure) {
-  SkpTexture *py_texture = (SkpTexture*)PyObject_CallFunction((PyObject*)&SkpTextureType, NULL);
-
-  SUResult res = SUMaterialGetTexture(self->_su_material, &py_texture->_su_texture);
-  if (res == SU_ERROR_NO_DATA) return Py_None;
-  if (checkerror(res, "cannot get texture")) return NULL;
-
-  return (PyObject*)py_texture;
+  SKP_GET_SINGLE_ELEMENT(
+    SkpTexture,
+    SkpTextureType,
+    SUMaterialGetTexture,
+    _su_material,
+    _su_texture,
+    "cannot get texture"
+  )
 }
 
 static int SkpMaterial_settexture(SkpMaterial *self, PyObject *value, void *closure) {

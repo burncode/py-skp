@@ -1,36 +1,15 @@
-#define GET_ELM_BODY( \
-                     proc_get_elm_num, \
-                     proc_get_elms, \
-                     su_elm_type, \
-                     __self_su_ref, \
-                     __elm_su_ref, \
-                     msg, \
-                     py_struct, \
-                     py_type \
-                    ) { \
-  size_t len; \
+#define SKP_GET_SINGLE_ELEMENT( \
+                                PyKlass, \
+                                PyKlassType, \
+                                proc, \
+                                _self_ref, \
+                                _target_ref, \
+                                msg ) { \
+  PyKlass *py_obj = (PyKlass*)PyObject_CallFunction((PyObject*)&PyKlassType, NULL); \
   \
-  SUResult res_num = proc_get_elm_num(self->__self_su_ref, &len); \
-  if (checkerror(res_num, msg)) return NULL; \
-  \
-  if (len == 0) return PyObject_CallFunction((PyObject*)&PyList_Type, NULL); \
-  \
-  std::vector<su_elm_type> vec_elements(len); \
-  \
-  SUResult res = proc_get_elms(self->__self_su_ref, len, &vec_elements[0], &len); \
+  SUResult res = proc(self->_self_ref, &py_obj->_target_ref); \
+  if (res == SU_ERROR_NO_DATA) return Py_None; \
   if (checkerror(res, msg)) return NULL; \
   \
-  PyObject *py_list= (PyObject*)PyObject_CallFunction((PyObject*)&PyList_Type, NULL); \
-  \
-  for (size_t i=0; i<len; ++i) { \
-    py_struct *py_elm= (py_struct*)PyObject_CallFunction((PyObject*)&py_type, NULL); \
-    py_elm->__elm_su_ref = vec_elements[i]; \
-    int succ = PyList_Append(py_list, (PyObject*)py_elm); \
-    if (succ < 0) { \
-      PyErr_SetString(PyExc_RuntimeError, "Cannot append element to list"); \
-      return NULL; \
-    } \
-  } \
-  \
-  return py_list; \
+  return (PyObject*)py_obj; \
 }

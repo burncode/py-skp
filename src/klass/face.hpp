@@ -52,7 +52,7 @@ static PyMemberDef SkpFace_members[] = {
 };
 
 static PyObject* SkpFace_getedges(SkpFace *self, void *closure) {
-  GET_ELM_BODY(
+  SKP_GET_ELEMENTS(
     SUFaceGetNumEdges,
     SUFaceGetEdges,
     SUEdgeRef,
