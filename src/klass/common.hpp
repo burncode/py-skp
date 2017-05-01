@@ -16,7 +16,9 @@
 #include "../macro/get_element.hpp"
 #include "../macro/get_elements.hpp"
 #include "../macro/get_string.hpp"
-#include "../macro/set_name.hpp"
+#include "../macro/set_string.hpp"
+#include "../macro/get_bool.hpp"
+#include "../macro/set_bool.hpp"
 
 // Helpers
 

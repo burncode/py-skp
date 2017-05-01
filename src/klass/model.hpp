@@ -46,7 +46,7 @@ static PyObject* SkpModel_getname(SkpModel *self, void *closure) {
 }
 
 static int SkpModel_setname(SkpModel *self, PyObject *value, void *closure) {
-  SET_NAME_BODY(SUModelSetName, _su_model)
+  SKP_SET_STRING_BODY(SUModelSetName, _su_model, "cannot set name")
 }
 
 static PyObject* SkpModel_getentities(SkpModel *self, void *closure) {

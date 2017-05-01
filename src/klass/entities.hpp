@@ -93,6 +93,7 @@ static PyObject * SkpEntities_create_face(SkpEntities* self, PyObject *args) {
 
 static PyObject* SkpEntities_getedges(SkpEntities *self, void *closure);
 static PyObject* SkpEntities_getfaces(SkpEntities *self, void *closure);
+static PyObject* SkpEntities_getinstances(SkpEntities *self, void *closure);
 
 static PyMethodDef SkpEntities_methods[] = {
   {"create_face", (PyCFunction)SkpEntities_create_face, METH_VARARGS,
@@ -106,6 +107,8 @@ static PyGetSetDef SkpEntities_getseters[] = {
     "faces", NULL},
   { "edges", (getter)SkpEntities_getedges, NULL,
     "edges", NULL},
+  { "instances", (getter)SkpEntities_getinstances, NULL,
+    "instances", NULL},
   {NULL}  /* Sentinel */
 };
 

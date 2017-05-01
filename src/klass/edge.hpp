@@ -5,6 +5,7 @@
 
 #include <SketchUpAPI/model/edge.h>
 
+#include "drawing_element.hpp"
 #include "vertex.hpp"
 
 typedef struct {

@@ -52,10 +52,15 @@ path = os.path.expandvars(
          os.path.join('%homedrive%', '%homepath%', 'Documents', 'model.skp'))
 
 model = skp.read_model(path)
-entities = model.entities
-edges = entities.edges
-edge = edges[0]
-curve = edge.curve
-
-print(curve)
-print(curve.edges)
+instances = model.entities.instances
+print(instances)
+ins = instances[0]
+print("name: %s" % ins.name)
+ins.name = 'askdjflkajsdkfj'
+print("guid: %s" % ins.guid)
+ins.guid = '3tTEWifL1BbgYzXCAQzCA0'
+print(ins.attached_instances)
+print(ins.locked)
+ins.locked = True
+print(ins.locked)
+model.save()

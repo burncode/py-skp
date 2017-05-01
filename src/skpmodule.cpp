@@ -20,6 +20,8 @@
 #include "klass/loop.hpp"
 #include "klass/edge.hpp"
 #include "klass/vertex.hpp"
+#include "klass/component_instance.hpp"
+#include "klass/component_instance_methods.hpp"
 #include "klass/entity_methods.hpp"
 #include "klass/curve_methods.hpp"
 #include "klass/vertex_methods.hpp"
@@ -133,6 +135,11 @@ PyMODINIT_FUNC PyInit_skp(void) {
   if (PyType_Ready(&SkpVertexType) < 0) return NULL;
   Py_INCREF(&SkpVertexType);
   PyModule_AddObject(m, "Vertex", (PyObject *)&SkpVertexType);
+
+  SkpComponentInstanceType.tp_base = &SkpDrawingElementType;
+  if (PyType_Ready(&SkpComponentInstanceType) < 0) return NULL;
+  Py_INCREF(&SkpComponentInstanceType);
+  PyModule_AddObject(m, "ComponentInstance", (PyObject *)&SkpComponentInstanceType);
 
   return m;
 }

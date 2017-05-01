@@ -1,5 +1,6 @@
 #include "face.hpp"
 #include "edge.hpp"
+#include "component_instance.hpp"
 
 SUResult SUEntitiesGetNumEdgesAll(SUEntitiesRef entities, size_t* count) {
   return SUEntitiesGetNumEdges(entities, false, count);
@@ -32,5 +33,18 @@ static PyObject* SkpEntities_getfaces(SkpEntities *self, void *closure) {
     "cannot get faces",
     SkpFace,
     SkpFaceType
+  )
+}
+
+static PyObject* SkpEntities_getinstances(SkpEntities *self, void *closure) {
+  SKP_GET_ELEMENTS(
+    SUEntitiesGetNumInstances,
+    SUEntitiesGetInstances,
+    SUComponentInstanceRef,
+    _su_entities,
+    _su_ins,
+    "cannot get instances",
+    SkpComponentInstance,
+    SkpComponentInstanceType
   )
 }

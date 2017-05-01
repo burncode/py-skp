@@ -54,7 +54,7 @@ static PyObject* SkpMaterial_getname(SkpMaterial *self, void *closure) {
 }
 
 static int SkpMaterial_setname(SkpMaterial *self, PyObject *value, void *closure) {
-  SET_NAME_BODY(SUMaterialSetName, _su_material)
+  SKP_SET_STRING_BODY(SUMaterialSetName, _su_material, "cannot set name")
 }
 
 static PyObject* SkpMaterial_getuse_alpha(SkpMaterial *self, void *closure) {
