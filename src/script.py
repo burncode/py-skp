@@ -52,15 +52,14 @@ path = os.path.expandvars(
          os.path.join('%homedrive%', '%homepath%', 'Documents', 'model.skp'))
 
 model = skp.read_model(path)
-instances = model.entities.instances
-print(instances)
-ins = instances[0]
-print("name: %s" % ins.name)
-ins.name = 'askdjflkajsdkfj'
-print("guid: %s" % ins.guid)
-ins.guid = '3tTEWifL1BbgYzXCAQzCA0'
-print(ins.attached_instances)
-print(ins.locked)
-ins.locked = True
-print(ins.locked)
+definitions = model.definitions
+print(model.entities)
+ins = definitions[0].instances[0]
+bbox = ins.bounds
+print(bbox.min.x)
+print(bbox.min.y)
+print(bbox.min.z)
+print(bbox.max.x)
+print(bbox.max.y)
+print(bbox.max.z)
 model.save()

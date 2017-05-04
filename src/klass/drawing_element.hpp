@@ -3,13 +3,22 @@
 
 #include "common.hpp"
 
-#include <SketchUpAPI/model/entity.h>
+#include <SketchUpAPI/model/drawing_element.h>
 
 #include "entity.hpp"
 
+#include "bounding_box.hpp"
+#include "layer.hpp"
+
 typedef struct {
   SkpEntity skp_entity;
+  SUDrawingElementRef (*get_su_drawing_el)(void*);
 } SkpDrawingElement;
+
+static SUDrawingElementRef SkpDrawingElement_get_su_drawing_el(void* self) {
+  SUEntityRef su_entity = ((SkpEntity*)self)->get_su_entity(self);
+  return SUDrawingElementFromEntity(su_entity);
+}
 
 static void SkpDrawingElement_dealloc(SkpDrawingElement* self) {
   Py_TYPE(self)->tp_free((PyObject*)self);
@@ -18,9 +27,10 @@ static void SkpDrawingElement_dealloc(SkpDrawingElement* self) {
 static PyObject * SkpDrawingElement_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
   PyObject *py_obj = (PyObject*)SkpEntityType.tp_new(type, args, kwds);
 
-  //SkpDrawingElement *self = (SkpDrawingElement*)py_obj;
-  //if (self != NULL) {
-  //}
+  SkpDrawingElement *self = (SkpDrawingElement*)py_obj;
+  if (self != NULL) {
+    self->get_su_drawing_el = &SkpDrawingElement_get_su_drawing_el;
+  }
 
   return py_obj;
 }
@@ -33,7 +43,32 @@ static PyMemberDef SkpDrawingElement_members[] = {
   {NULL}  /* Sentinel */
 };
 
+static PyObject* SkpDrawingElement_getlayer(SkpDrawingElement *self, void *closure) {
+  SKP_GET_SINGLE_ELEMENT(
+    SkpLayer,
+    SkpLayerType,
+    SUDrawingElementGetLayer,
+    get_su_drawing_el(self),
+    _su_layer,
+    "cannot get layer"
+  )
+}
+
+static PyObject* SkpDrawingElement_getbounding_box(SkpDrawingElement *self, void *closure) {
+  SUBoundingBox3D bbox;
+  SUResult res = SUDrawingElementGetBoundingBox(self->get_su_drawing_el(self), &bbox);
+
+  PyObject *py_bbox= (PyObject*)PyObject_CallFunction((PyObject*) &SkpBoundingBoxType, NULL);
+  ((SkpBoundingBox*)py_bbox)->bbox = bbox;
+
+  return py_bbox;
+}
+
 static PyGetSetDef SkpDrawingElement_getseters[] = {
+  { "layer", (getter)SkpDrawingElement_getlayer, NULL,
+    "layer", NULL},
+  { "bounds", (getter)SkpDrawingElement_getbounding_box, NULL,
+    "bounds", NULL},
   {NULL}  /* Sentinel */
 };
 

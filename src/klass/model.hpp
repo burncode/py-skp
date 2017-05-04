@@ -7,6 +7,7 @@
 
 #include "entities.hpp"
 #include "material.hpp"
+#include "component_definition.hpp"
 
 typedef struct {
   PyObject_HEAD
@@ -50,20 +51,14 @@ static int SkpModel_setname(SkpModel *self, PyObject *value, void *closure) {
 }
 
 static PyObject* SkpModel_getentities(SkpModel *self, void *closure) {
-  SkpEntities *py_entities = (SkpEntities*)PyObject_CallFunction(
-      (PyObject*) &SkpEntitiesType, NULL);
-
-  SUResult res = SUModelGetEntities(self->_su_model, &py_entities->_su_entities);
-  if (checkerror(res, "Cannot get entities")) {
-    Py_DECREF(py_entities);
-    return NULL;
-  }
-
-  self->entities = (PyObject*)py_entities;
-
-  //Py_INCREF(self->entities);
-
-  return self->entities;
+  SKP_GET_SINGLE_ELEMENT(
+    SkpEntities,
+    SkpEntitiesType,
+    SUModelGetEntities,
+    _su_model,
+    _su_entities,
+    "cannot get entities"
+  )
 }
 
 static PyObject* SkpModel_getmaterials(SkpModel *self, void *closure) {
@@ -79,6 +74,19 @@ static PyObject* SkpModel_getmaterials(SkpModel *self, void *closure) {
   )
 }
 
+static PyObject* SkpModel_getdefinitions(SkpModel *self, void *closure) {
+  SKP_GET_ELEMENTS(
+    SUModelGetNumComponentDefinitions,
+    SUModelGetComponentDefinitions,
+    SUComponentDefinitionRef,
+    _su_model,
+    _su_def,
+    "cannot get definitions",
+    SkpComponentDefinition,
+    SkpComponentDefinitionType
+  )
+}
+
 static PyGetSetDef SkpModel_getseters[] = {
   { "name", (getter)SkpModel_getname, (setter)SkpModel_setname,
     "name", NULL},
@@ -86,6 +94,8 @@ static PyGetSetDef SkpModel_getseters[] = {
     "entities", NULL},
   { "materials", (getter)SkpModel_getmaterials, NULL,
     "materials", NULL},
+  { "definitions", (getter)SkpModel_getdefinitions, NULL,
+    "definitions", NULL},
   {NULL}  /* Sentinel */
 };
 

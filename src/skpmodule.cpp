@@ -9,10 +9,13 @@
 
 #include "klass/color.hpp"
 #include "klass/model.hpp"
+#include "klass/point3d.hpp"
+#include "klass/bounding_box.hpp"
 #include "klass/entity.hpp"
 #include "klass/material.hpp"
 #include "klass/attribute_dictionary.hpp"
 #include "klass/drawing_element.hpp"
+#include "klass/layer.hpp"
 #include "klass/texture.hpp"
 #include "klass/entities.hpp"
 #include "klass/curve.hpp"
@@ -21,7 +24,9 @@
 #include "klass/edge.hpp"
 #include "klass/vertex.hpp"
 #include "klass/component_instance.hpp"
+#include "klass/component_definition.hpp"
 #include "klass/component_instance_methods.hpp"
+#include "klass/component_definition_methods.hpp"
 #include "klass/entity_methods.hpp"
 #include "klass/curve_methods.hpp"
 #include "klass/vertex_methods.hpp"
@@ -79,6 +84,10 @@ PyMODINIT_FUNC PyInit_skp(void) {
   Py_INCREF(&SkpModelType);
   PyModule_AddObject(m, "Model", (PyObject *)&SkpModelType);
 
+  if (PyType_Ready(&SkpBoundingBoxType) < 0) return NULL;
+  Py_INCREF(&SkpBoundingBoxType);
+  PyModule_AddObject(m, "BoundingBox", (PyObject *)&SkpBoundingBoxType);
+
   if (PyType_Ready(&SkpEntityType) < 0) return NULL;
   Py_INCREF(&SkpEntityType);
   PyModule_AddObject(m, "Entity", (PyObject *)&SkpEntityType);
@@ -97,6 +106,11 @@ PyMODINIT_FUNC PyInit_skp(void) {
   if (PyType_Ready(&SkpDrawingElementType) < 0) return NULL;
   Py_INCREF(&SkpDrawingElementType);
   PyModule_AddObject(m, "DrawingElement", (PyObject *)&SkpDrawingElementType);
+
+  SkpLayerType.tp_base = &SkpEntityType;
+  if (PyType_Ready(&SkpLayerType) < 0) return NULL;
+  Py_INCREF(&SkpLayerType);
+  PyModule_AddObject(m, "Texture", (PyObject *)&SkpLayerType);
 
   SkpTextureType.tp_base = &SkpEntityType;
   if (PyType_Ready(&SkpTextureType) < 0) return NULL;
@@ -140,6 +154,11 @@ PyMODINIT_FUNC PyInit_skp(void) {
   if (PyType_Ready(&SkpComponentInstanceType) < 0) return NULL;
   Py_INCREF(&SkpComponentInstanceType);
   PyModule_AddObject(m, "ComponentInstance", (PyObject *)&SkpComponentInstanceType);
+
+  SkpComponentDefinitionType.tp_base = &SkpDrawingElementType;
+  if (PyType_Ready(&SkpComponentDefinitionType) < 0) return NULL;
+  Py_INCREF(&SkpComponentDefinitionType);
+  PyModule_AddObject(m, "ComponentDefinition", (PyObject *)&SkpComponentDefinitionType);
 
   return m;
 }

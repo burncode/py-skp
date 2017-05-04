@@ -25,3 +25,4 @@
 #include "../helper/material.hpp"
 #include "../helper/string.hpp"
 #include "../helper/value.hpp"
+#include "../helper/make_point3d.hpp"
